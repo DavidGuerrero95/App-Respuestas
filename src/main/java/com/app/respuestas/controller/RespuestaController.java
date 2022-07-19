@@ -65,15 +65,12 @@ public class RespuestaController {
 		if (cbFactory.create("respuestas").run(() -> prClient.existCodigoProyecto(idProyecto),
 				e -> encontrarProyecto(idProyecto, e))) {
 			rServices.creaRespuestasTotal(listaRespuestas);
-			if (cbFactory.create("respuestas").run(() -> eClient.crearRespuestasLista(listaRespuestas),
-					e -> errorConexion(e))) {
-				log.info("Creacion Correcta Estadisticas");
-			}
-			if (cbFactory.create("respuestas").run(
-					() -> eClient.obtenerEstadistica(idProyecto, listaRespuestas.get(0).getFormulario()),
-					e -> errorConexion(e))) {
-				log.info("Obtencion estadisticas Correcta");
-			}
+			/*
+			 * if (cbFactory.create("respuestas").run( () ->
+			 * eClient.obtenerEstadistica(idProyecto,
+			 * listaRespuestas.get(0).getFormulario()), e -> errorConexion(e))) {
+			 * log.info("Obtencion estadisticas Correcta"); }
+			 */
 			return true;
 		}
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El Proyecto no existe");
@@ -86,12 +83,8 @@ public class RespuestaController {
 		if (cbFactory.create("respuestas").run(() -> prClient.existCodigoProyecto(respuesta.getIdProyecto()),
 				e -> encontrarProyecto(respuesta.getIdProyecto(), e))) {
 			rServices.crearRespuesta(respuesta);
-			if (cbFactory.create("respuestas").run(() -> eClient.crearRespuestas(respuesta), e -> errorConexion(e))) {
-				log.info("Creacion Correcta");
-			}
-			if (cbFactory.create("respuestas").run(
-					() -> eClient.obtenerEstadistica(respuesta.getIdProyecto(), respuesta.getFormulario()),
-					e -> errorConexion(e))) {
+			if (cbFactory.create("respuestas").run(() -> eClient.obtenerEstadisticaResultado(respuesta.getIdProyecto(),
+					respuesta.getFormulario(), respuesta.getNumeroPregunta()), e -> errorConexion(e))) {
 				log.info("Creacion Correcta");
 			}
 			return true;
@@ -173,11 +166,6 @@ public class RespuestaController {
 					e -> encontrarProyecto(idProyecto, e))) {
 				rRepository.deleteByIdProyectoAndFormulario(idProyecto, formulario);
 				fRepository.deleteByIdProyectoAndFormulario(idProyecto, formulario);
-				if (cbFactory.create("respuestas").run(
-						() -> eClient.eliminarRespuestasProyectoFormulario(idProyecto, formulario),
-						e -> errorConexion(e))) {
-					log.info("Eliminación eliminar respuestas proyecto formulario correcta");
-				}
 				return true;
 			}
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El Proyecto no existe");
@@ -189,16 +177,11 @@ public class RespuestaController {
 	@DeleteMapping("/respuestas/eliminar/proyecto/pregunta/{idProyecto}")
 	public Boolean eliminarRespuestasProyectoFormularioPregunta(@PathVariable("idProyecto") Integer idProyecto,
 			@RequestParam(value = "formulario", defaultValue = "1") Integer formulario,
-			@PathVariable("numeroPregunta") Integer numeroPregunta) throws IOException {
+			@RequestParam("numeroPregunta") Integer numeroPregunta) throws IOException {
 		try {
 			if (cbFactory.create("respuestas").run(() -> prClient.existCodigoProyecto(idProyecto),
 					e -> encontrarProyecto(idProyecto, e))) {
 				rRepository.deleteByIdProyectoAndFormularioAndNumeroPregunta(idProyecto, formulario, numeroPregunta);
-				if (cbFactory.create("respuestas").run(() -> eClient
-						.eliminarRespuestasProyectoFormularioPregunta(idProyecto, formulario, numeroPregunta),
-						e -> errorConexion(e))) {
-					log.info("Eliminación eliminar respuestas proyecto formulario numero pregunta correcta");
-				}
 				return true;
 			}
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El Proyecto no existe");
@@ -214,10 +197,6 @@ public class RespuestaController {
 					e -> encontrarProyecto(idProyecto, e))) {
 				rRepository.deleteByIdProyecto(idProyecto);
 				fRepository.deleteByIdProyecto(idProyecto);
-				if (cbFactory.create("respuestas").run(() -> eClient.eliminarRespuestasProyecto(idProyecto),
-						e -> errorConexion(e))) {
-					log.info("Eliminación eliminar respuestas proyecto formulario numero pregunta correcta");
-				}
 				return true;
 			}
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El Proyecto no existe");
